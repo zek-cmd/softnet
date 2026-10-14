@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_shared_gallery_photos",
+  "info": {
+    "displayName": "Gallery photo",
+    "description": "One extra photo shown under the cover photo on a news story."
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "caption": {
+      "type": "string"
+    }
+  }
+}

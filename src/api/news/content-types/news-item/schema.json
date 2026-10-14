@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "news",
+  "info": {
+    "singularName": "news-item",
+    "pluralName": "news",
+    "displayName": "News",
+    "description": "One news story. The fields are the same ones the PHP backend stored, so the site reads the same data it always did."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "summary": {
+      "type": "text"
+    },
+    "content": {
+      "type": "richtext"
+    },
+    "category": {
+      "type": "string",
+      "default": "General"
+    },
+    "tags": {
+      "type": "string"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "gallery": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.gallery-photo"
+    },
+    "legacy_id": {
+      "type": "integer"
+    }
+  }
+}
