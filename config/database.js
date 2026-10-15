@@ -15,7 +15,7 @@ module.exports = ({ env }) => {
   /** @type {Record<Core.Config.Database.ClientKind, Core.Config.Database['connection']>} */
   const connections = {
     mysql: {
-      client: 'mysql',
+      client: 'sqlite',
       connection: {
         host: env('DATABASE_HOST', 'localhost'),
         port: env.int('DATABASE_PORT', 3306),
