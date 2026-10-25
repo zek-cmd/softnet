@@ -130,5 +130,5 @@ build
 .strapi-updater.json
 .strapi-cloud.json
 
-database/
+
 backups/
