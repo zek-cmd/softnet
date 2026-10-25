@@ -132,7 +132,3 @@ fail with `This Strapi license expired on …`, which does not affect running th
 Released under the [MIT License](LICENSE).
 
 Copyright (c) 2026 SOFTNET Information Technology Center, Inc.
-
-This project runs on Strapi, which is licensed separately under its own terms — see
-[strapi.io](https://strapi.io). The `STRAPI_LICENSE` key in `.env` is Strapi's licence and is
-unrelated to the MIT licence above.
