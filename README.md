@@ -88,15 +88,32 @@ npm run start     # production mode
 npm run build     # build the admin panel
 ```
 
-`npm run seed:example` runs `scripts/seed.js`, which imports `data/data.json`. **That seed is
-stale**: it expects `categories`, `authors` and `articles`, which are no longer content types in
-this project, so it should not be run against this database.
+`npm run seed:example` runs `scripts/seed.js`, which creates the sample stories in
+`data/data.json` and grants the public role read access to news. It was rewritten for this
+project after the other content types were removed — it used to import articles, categories,
+authors, `global` and `about`, none of which exist here any more.
+
+- **It adds, it does not replace.** Existing stories are left alone.
+- **It runs once.** Strapi records that it has run, so a second run is a no-op.
+- **It uploads from `data/uploads`**, reusing any image already in the media library.
+- **The stories are obvious samples** — titled "Sample story: …" — so they cannot be mistaken
+  for real announcements. Delete them in the admin once the school has real news.
+
+Two things about this type matter if you ever write a story by hand in code:
+
+- **`status: 'published'` is required.** `draftAndPublish` is on, so a story created without it
+  stays a draft and never appears on the site. `publishedAt` is not the switch to set.
+- **`slug` must be given.** It is a `uid` field, which Strapi does not fill in from a `create()`
+  call — without it the story has no readable address.
 
 ---
 
 ## 4. Data and backups
 
-- **`data/data.json`** — seed content, not a backup of live stories.
+- **`data/data.json`** — the sample stories `seed:example` creates. Not a backup of live
+  stories.
+- **`data/uploads/`** — the images those samples upload. They are template photos (coffee,
+  pizza, a dog), used only so a freshly seeded site has something to show.
 - **`database/migrations/`** — Strapi's own migration records.
 - **`backups/`** — manual backups, if any have been taken.
 
