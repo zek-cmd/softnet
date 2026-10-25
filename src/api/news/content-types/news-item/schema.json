@@ -43,9 +43,6 @@
       "type": "component",
       "repeatable": true,
       "component": "shared.gallery-photo"
-    },
-    "legacy_id": {
-      "type": "integer"
     }
   }
 }
