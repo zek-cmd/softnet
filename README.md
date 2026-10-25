@@ -1,8 +1,7 @@
 # SOFTNET — news backend (Strapi)
 
 The content backend for the **SOFTNET Information Technology Center** website. It holds the
-school's news stories and the global/about content, and it is the only place a story is written
-from.
+school's news stories, and it is the only place a story is written from.
 
 The website itself is a separate project, in its own folder (`Documents\school1`). This project
 serves data over HTTP; it does not render any public page.
@@ -21,8 +20,6 @@ serves data over HTTP; it does not render any public page.
 |---|---|
 | `GET /api/news` | The story list — paging, sorting and filtering |
 | `GET /api/news/:id` | One story by its Strapi number |
-| `GET /api/about` | The About page content (single type) |
-| `GET /api/global` | Site name, favicon, description, default SEO (single type) |
 
 Reading is open to everyone; writing needs a logged-in admin. **The public role must stay
 read-only** — `find` and `findOne` on News, nothing more. A public role that can create, update
@@ -33,14 +30,24 @@ or delete is a way to publish stories without signing in.
 | Type | Kind | Fields |
 |---|---|---|
 | `news-item` (plural `news`) | collection | `title`, `slug`, `summary`, `content`, `category`, `tags`, `image`, `gallery` |
-| `about` | single | `SOFTNET_Information_Technology_Center`, `blocks` |
-| `global` | single | `siteName`, `favicon`, `siteDescription`, `defaultSeo` |
 
-Shared components: `gallery-photo`, `media`, `quote`, `rich-text`, `seo`, `slider`.
+Shared components: the story uses `gallery-photo`. The others (`media`, `quote`, `rich-text`,
+`seo`, `slider`) came with the template and were used by the removed `about` type; they are no
+longer referenced, but leaving them costs nothing and they are there if a future content type
+needs them.
 
 The type is registered as `api::news.news-item` because Strapi does not allow `news` to be both
 the singular and the plural name. Its `pluralName` is `news`, which is what makes the two
 addresses above work (`src/api/news/routes/news.js`).
+
+**News is the only content type.** An `about` and a `global` type used to sit beside it, carried
+over from the Strapi template this project was scaffolded from. Neither was ever read by the
+website: the About page draws its history, mission, vision and hymn from `app/utils/site.js`, and
+the site only ever requests `/api/news`. Both were removed, along with their routes.
+
+Their MySQL tables (`abouts`, `abouts_cmps`, `globals`, `globals_cmps`) may still be present —
+Strapi does not drop tables when a content type is deleted. They are unreferenced and harmless;
+dropping them is a separate, irreversible step.
 
 ### The story body
 
