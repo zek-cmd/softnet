@@ -1,153 +1,62 @@
-# SOFTNET — news backend (Strapi)
+# SOFTNET — News Backend (Strapi)
 
-The content backend for the **SOFTNET Information Technology Center** website. It holds the
-school's news stories, and it is the only place a story is written from.
+## Overview
 
-The website itself is a separate project, in its own folder (`Documents\school1`). This project
-serves data over HTTP; it does not render any public page.
+This project is the content backend for the **SOFTNET Information Technology Center** website.
+It stores the school's news stories and is the only place a story is written.
 
-| Item | Value |
-|---|---|
-| Strapi | 5.57.0 |
-| Database | MySQL — `softnet` (see `config/database.js`, `.env`) |
-| Admin | `/admin`, on the port in `.env` (default `1337`) |
+- It is built with **Strapi 5.57.0**, a tool that gives you a database, an admin panel and a
+  ready-made web API without writing that code by hand.
+- Stories are stored in **MySQL** (database name `softnet`).
+- The **admin panel** is at `/admin` (default port `1337`), where a logged-in admin writes and
+  publishes stories.
+- The website is a separate project. This project only serves the data over HTTP; it does not
+  show any public page itself.
 
----
-
-## 1. What it serves
+### What it serves
 
 | Address | What it is |
 |---|---|
-| `GET /api/news` | The story list — paging, sorting and filtering |
-| `GET /api/news/:id` | One story by its Strapi number |
+| `GET /api/news` | The list of stories |
+| `GET /api/news/:id` | One story by its number |
 
-Reading is open to everyone; writing needs a logged-in admin. **The public role must stay
-read-only** — `find` and `findOne` on News, nothing more. A public role that can create, update
-or delete is a way to publish stories without signing in.
+Anyone can read stories. Only a logged-in admin can create, change or delete them.
 
-### Content types
+---
 
-| Type | Kind | Fields |
+## Dependencies
+
+### Runtime requirements
+
+- **Node.js** 20 up to 26
+- **npm** 6 or newer
+- **MySQL** database for the stories
+
+### Main packages (`dependencies` in `package.json`)
+
+| Package | Version | Purpose |
 |---|---|---|
-| `news-item` (plural `news`) | collection | `title`, `slug`, `summary`, `content`, `category`, `tags`, `image`, `gallery` |
+| `@strapi/strapi` | 5.57.0 | The Strapi core: API, admin panel and server |
+| `@strapi/database` | 5.57.0 | Database layer used by Strapi |
+| `@strapi/plugin-users-permissions` | 5.57.0 | Roles and permissions (public read, admin write) |
+| `@strapi/plugin-cloud` | 5.57.0 | Strapi Cloud support |
+| `mysql2` | ^3.20.0 | Connects Strapi to the MySQL database |
+| `better-sqlite3` | ^13.0.3 | SQLite driver, available as a local option |
+| `react` / `react-dom` | ^18.0.0 | Used by the admin panel |
+| `react-router-dom` | ^6.30.3 | Page routing in the admin panel |
+| `styled-components` | ^6.0.0 | Styling in the admin panel |
+| `fs-extra` | ^10.0.0 | Easier file-system helpers |
+| `mime-types` | ^2.1.27 | Detects file types for uploaded images |
 
-Shared components: the story uses `gallery-photo`. The others (`media`, `quote`, `rich-text`,
-`seo`, `slider`) came with the template and were used by the removed `about` type; they are no
-longer referenced, but leaving them costs nothing and they are there if a future content type
-needs them.
-
-The type is registered as `api::news.news-item` because Strapi does not allow `news` to be both
-the singular and the plural name. Its `pluralName` is `news`, which is what makes the two
-addresses above work (`src/api/news/routes/news.js`).
-
-**News is the only content type.** An `about` and a `global` type used to sit beside it, carried
-over from the Strapi template this project was scaffolded from. Neither was ever read by the
-website: the About page draws its history, mission, vision and hymn from `app/utils/site.js`, and
-the site only ever requests `/api/news`. Both were removed, along with their routes.
-
-Their MySQL tables (`abouts`, `abouts_cmps`, `globals`, `globals_cmps`) may still be present —
-Strapi does not drop tables when a content type is deleted. They are unreferenced and harmless;
-dropping them is a separate, irreversible step.
-
-### The story body
-
-`content` is a rich-text field. The site accepts either shape Strapi can store — Markdown text,
-or a list of blocks — and turns it into HTML itself. Nothing about a story depends on which
-editor the field uses.
-
----
-
-## 2. How the website reads it
-
-The site asks for stories on **every request** (it is rendered on the server), so a story
-published or corrected in the admin appears on the next visit. Nothing is rebuilt or uploaded.
-
-Two things the site relies on, and which must not be changed here without changing it too:
-
-- **`slug` is the story's address.** A story with no slug falls back to its numeric id, so
-  readable addresses are what should be filled in. The slug is lower-cased when matched.
-- **Numeric ids still resolve.** Old links such as `/news/12` are matched against Strapi's own
-  `id`.
-
-⚠️ **`legacy_id` has been retired.** The field was meant to preserve ids from the old PHP
-database, but it was never populated — every row was `NULL` — and that site resolved numeric
-links by its own `id` anyway. The site no longer sends a filter on it, so filtering on a field
-that does not exist cannot happen. The MySQL column may still be present; Strapi ignores it.
-
-Uploaded photos are served from this project's `public/uploads`, so the site builds image
-addresses against this host. If the two ever run on different hosts, that address is what the
-site needs configured as its news API.
-
----
-
-## 3. Commands
+### Commands
 
 ```bash
-npm run develop   # dev with auto-reload — the admin is then at :1337/admin
-npm run start     # production mode
-npm run build     # build the admin panel
+npm install         # install the dependencies
+npm run develop     # development mode with auto-reload (admin at :1337/admin)
+npm run start       # production mode
+npm run build       # build the admin panel
+npm run seed:example  # add sample stories (runs once)
 ```
-
-`npm run seed:example` runs `scripts/seed.js`, which creates the sample stories in
-`data/data.json` and grants the public role read access to news. It was rewritten for this
-project after the other content types were removed — it used to import articles, categories,
-authors, `global` and `about`, none of which exist here any more.
-
-- **It adds, it does not replace.** Existing stories are left alone.
-- **It runs once.** Strapi records that it has run, so a second run is a no-op.
-- **It uploads from `data/uploads`**, reusing any image already in the media library.
-- **The stories are obvious samples** — titled "Sample story: …" — so they cannot be mistaken
-  for real announcements. Delete them in the admin once the school has real news.
-
-Two things about this type matter if you ever write a story by hand in code:
-
-- **`status: 'published'` is required.** `draftAndPublish` is on, so a story created without it
-  stays a draft and never appears on the site. `publishedAt` is not the switch to set.
-- **`slug` must be given.** It is a `uid` field, which Strapi does not fill in from a `create()`
-  call — without it the story has no readable address.
-
----
-
-## 4. Data and backups
-
-- **`data/data.json`** — the sample stories `seed:example` creates. Not a backup of live
-  stories.
-- **`data/uploads/`** — the images those samples upload. They are template photos (coffee,
-  pizza, a dog), used only so a freshly seeded site has something to show.
-- **`database/migrations/`** — Strapi's own migration records.
-- **`backups/`** — manual backups, if any have been taken.
-
-MySQL is the source of truth. The stories the website shows live in the `news` table of the
-`softnet` database; `public/uploads` holds the photos they point at. **A database dump on its own
-is not a full backup** — the uploads folder has to be copied as well, or the stories will survive
-with their pictures missing.
-
----
-
-## 5. Security
-
-- **`.env` holds the secrets** — `APP_KEYS`, `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `JWT_SECRET`,
-  `TRANSFER_TOKEN_SALT`, `ENCRYPTION_KEY`, `STRAPI_LICENSE`, and the database password. It is in
-  `.gitignore` and must never be committed or shared.
-- **`STRAPI_LICENSE` is Strapi's own licence key**, not this project's licence. It used to live in
-  a `license.txt` in this folder; it now sits in `.env`. Strapi reads `env.STRAPI_LICENSE` first
-  and only falls back to `appDir/license.txt`, so the key is still found — see below.
-- **The admin is the only way in.** There are no public write endpoints.
-
-### Where the Strapi licence lives
-
-Strapi's enterprise licence is a long base64 key. Its resolution order is:
-
-1. `STRAPI_LICENSE` in the environment (or in `.env`) — **this is what the project uses**
-2. `license.txt` in the project root
-
-The key was moved into `.env` so it no longer sits loose in the project root, and `.env` is
-already gitignored. Nothing has to be installed for this: the licence is only consulted by
-`strapi deploy` and the enterprise packages, none of which are installed here.
-
-The current key is a **silver trial** that expires **13 November 2026**. To restore it as a file
-instead, or to renew it, see the Strapi billing page — an expired key makes any enterprise command
-fail with `This Strapi license expired on …`, which does not affect running the site or the admin.
 
 ---
 
