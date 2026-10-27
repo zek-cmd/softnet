@@ -41,7 +41,6 @@ Anyone can read stories. Only a logged-in admin can create, change or delete the
 | `@strapi/plugin-users-permissions` | 5.57.0 | Roles and permissions (public read, admin write) |
 | `@strapi/plugin-cloud` | 5.57.0 | Strapi Cloud support |
 | `mysql2` | ^3.20.0 | Connects Strapi to the MySQL database |
-| `better-sqlite3` | ^13.0.3 | SQLite driver, available as a local option |
 | `react` / `react-dom` | ^18.0.0 | Used by the admin panel |
 | `react-router-dom` | ^6.30.3 | Page routing in the admin panel |
 | `styled-components` | ^6.0.0 | Styling in the admin panel |
